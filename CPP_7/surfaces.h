@@ -2,9 +2,12 @@
 #define SURFACES_H
 
 #include <iostream>
+#include <functional>
 #include "real.h"
 
 using std::ostream;
+using std::invoke;
+using std::function;
 
 class Point
 {
@@ -32,45 +35,17 @@ inline ostream& operator<<(ostream& os, const Point& p)
 	return os;
 }
 
-class Surface
-{
-public:
-	Surface();
-	Surface(const Real&, const Real&);
+using Surface = function<Real(const Point&)>;
 
-protected:
-	Real point_x;
-	Real point_y;
-};
-
-inline Surface::Surface()
-{
-	point_x = 0.0;
-	point_y = 0.0;
+Surface plain()
+{ 
+	return [](const Point&) -> Real { return 0.0; };
 }
 
-inline Surface::Surface(const Real& x, const Real& y)
+Surface add(Surface f, Real c)
 {
-	point_x = x;
-	point_y = y;
+	return [c, &f](const Point& p) -> Real { return f(p) + c; };
 }
-
-class plain : public Surface
-{
-public:
-	plain();
-	plain(const Real&, const Real&);
-	Real operator()(const Point& x)
-	{
-		return 0.0;
-	}
-};
-
-inline plain::plain() : Surface()
-{}
-
-inline plain::plain(const Real& x, const Real& y) : Surface(x, y)
-{}
 
 #endif
 
