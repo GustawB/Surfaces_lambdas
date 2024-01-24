@@ -210,8 +210,25 @@ Surface mul(Surface f, Real c)
 // Adds a scalar c to the given surface.
 Surface add(Surface f, Real c)
 {
-	return [&](const Point& p) -> Real { return f(p) + c; };
+	return [c, &f](const Point& p) -> Real { return f(p) + c; };
 }
 
+template <class F, class... Args>
+auto evaluate(F, Surface a, Args... args) -> decltype(auto)
+{
+	return a;
+}
+
+template <class... F>
+auto compose(F&&... f) -> decltype(auto)
+{
+	return 0.0;
+}
+
+template <>
+auto compose() -> decltype(auto)
+{
+	return [](const Real& p) -> Real { return p; };
+}
 #endif
 
