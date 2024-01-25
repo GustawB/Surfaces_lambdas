@@ -222,17 +222,31 @@ auto evaluate(F&& f, Surface&& a, Args&&... args) -> decltype(auto)
 	};
 }
 
-template <class... F>
-auto compose(F&&... f) -> decltype(auto)
-{
-	return 0.0;
-}
-
-/*
-template <>
 auto compose() -> decltype(auto)
 {
-	return [](const Real& p) -> Real { return p; };
-}*/
+	return[&](Real r)->Real
+	{
+		return r;
+	};
+}
+
+template <class F>
+auto compose(F&& f) -> decltype(auto)
+{
+	return[&](Real r)->Real
+	{
+		return f(r);
+	};
+}
+
+template <class F, class... T>
+auto compose(F&& f, T&&... t) -> decltype(auto)
+{
+	return[&](Real r)->Real
+	{
+		return f(compose(t...)(r));
+	};
+}
+
 #endif
 
