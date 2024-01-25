@@ -150,9 +150,9 @@ Surface stripes(const Real& s = 1.0)
 }
 
 // Rotate the domain of the given function by the gven angle. 
-Surface rotate(Surface f, Real deg)
+Surface rotate(Surface&& f, Real deg)
 {
-	return [&](const Point& p) -> Real
+	return [deg, &f](const Point& p) -> Real
 	{
 		Point p_new(p.x * cos(deg) - p.y * sin(deg),
 			p.x * sin(deg) + p.y * cos(deg));
@@ -161,9 +161,9 @@ Surface rotate(Surface f, Real deg)
 }
 
 // Moves the domain of the given surface by the given vector (Point).
-Surface translate(Surface f, const Point& pa)
+Surface translate(Surface&& f, const Point& pa)
 {
-	return [&](const Point& pb) -> Real
+	return [&pa, &f](const Point& pb) -> Real
 	{
 		Point p_new(pb.x + pa.x, pb.y + pa.y);
 		return f(p_new);
@@ -171,9 +171,9 @@ Surface translate(Surface f, const Point& pa)
 }
 
 // Scales the domain of the given surface by the given vector (Point).
-Surface scale(Surface f, const Point& pa)
+Surface scale(Surface&& f, const Point& pa)
 {
-	return [&](const Point& pb) -> Real 
+	return [&pa, &f](const Point& pb) -> Real 
 	{
 		Point p_new(pb.x * pa.x, pb.y * pa.y);
 		return f(p_new);
@@ -181,9 +181,9 @@ Surface scale(Surface f, const Point& pa)
 }
 
 // Inverts the given surface (swaps x's with y's).
-Surface invert(Surface f)
+Surface invert(Surface&& f)
 {
-	return [&](const Point& p) -> Real 
+	return [&f](const Point& p) -> Real 
 	{
 		Point p_new(p.y, p.x);
 		return f(p_new); 
@@ -191,9 +191,9 @@ Surface invert(Surface f)
 }
 
 // Flips the domain of the Surface (flips x to -x).
-Surface flip(Surface f)
+Surface flip(Surface&& f)
 {
-	return [&](const Point& p) -> Real 
+	return [&f](const Point& p) -> Real 
 	{
 		Point p_new(-p.x, p.y);
 		return f(p_new);
@@ -202,21 +202,24 @@ Surface flip(Surface f)
 
 
 // Multiplies the given surface by the scalar c.
-Surface mul(Surface f, Real c)
+Surface mul(Surface&& f, Real c)
 {
-	return [&](const Point& p) -> Real { return f(p) * c; };
+	return [c, &f](const Point& p) -> Real { return f(p) * c; };
 }
 
 // Adds a scalar c to the given surface.
-Surface add(Surface f, Real c)
+Surface add(Surface&& f, Real c)
 {
 	return [c, &f](const Point& p) -> Real { return f(p) + c; };
 }
 
 template <class F, class... Args>
-auto evaluate(F, Surface a, Args... args) -> decltype(auto)
+auto evaluate(F&& f, Surface&& a, Args&&... args) -> decltype(auto)
 {
-	return a;
+	return [&](const Point& p) -> Real
+	{
+		return f(a(p), a(args)...);
+	};
 }
 
 template <class... F>
@@ -225,10 +228,11 @@ auto compose(F&&... f) -> decltype(auto)
 	return 0.0;
 }
 
+/*
 template <>
 auto compose() -> decltype(auto)
 {
 	return [](const Real& p) -> Real { return p; };
-}
+}*/
 #endif
 
