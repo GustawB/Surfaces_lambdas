@@ -213,12 +213,12 @@ Surface add(Surface&& f, Real c)
 	return [c, &f](const Point& p) -> Real { return f(p) + c; };
 }
 
-template <class F, class... Args>
-auto evaluate(F&& f, Surface&& a, Args&&... args) -> decltype(auto)
+template <class F, class T, class... Args>
+auto evaluate(F&& f, T&& t, Args&&... args) -> decltype(auto)
 {
 	return [&](const Point& p) -> Real
 	{
-		return f(a(p), a(args)...);
+		return f(t(p), args(p)...);
 	};
 }
 
@@ -244,7 +244,7 @@ auto compose(F&& f, T&&... t) -> decltype(auto)
 {
 	return[&](Real r)->Real
 	{
-		return f(compose(t...)(r));
+		return compose(t...)(f(r));
 	};
 }
 
