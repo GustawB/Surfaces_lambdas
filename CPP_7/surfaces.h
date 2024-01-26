@@ -59,7 +59,7 @@ inline Surface steps(const Real& s = 1.0)
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
-		if (p.x < 0) { --quotient; }
+		if (p.x < 0 && quotient * s != p.x) { --quotient; }
 		Real result = quotient * 1.0;
 		return result;
 	};
@@ -107,14 +107,9 @@ inline Surface rings(const Real& s = 1.0)
 	return [&](const Point& p) -> Real 
 	{
 		if (s <= 0.0) { return 0.0; }
-		int x_quotient = abs(p.x) / s;
-		int y_quotient = abs(p.y) / s;
-		x_quotient = (s * x_quotient == abs(p.y)) ? x_quotient - 1 : x_quotient;
-		x_quotient = (p.x < 0.0) ? -x_quotient : x_quotient;
-		y_quotient = (s * y_quotient == abs(p.y)) ? y_quotient - 1 : y_quotient;
-		y_quotient = (p.x < 0.0) ? -y_quotient : y_quotient;
-		return (x_quotient % 2 == y_quotient % 2) ?
-			((x_quotient % 2 == 0) ? 1.0 : 0.0) : 0.0;
+		Real dist = std::sqrt(p.x * p.x + p.y * p.y);
+		int quotient = dist / s;
+		return (quotient % 2 == 0) ? 1.0 : 0.0;
 	};
 }
 
@@ -127,7 +122,6 @@ inline Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
 		if (a <= 0.0 || b <= 0.0) { return 0.0; }
 		Real first = p.x * p.x / a * a;
 		Real second = p.y * p.y / b * b;
-		//std::cout << first << " " << second << '\n';
 		return (first + second <= 1.0) ? 1.0 : 0.0;
 	};
 }
