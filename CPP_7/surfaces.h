@@ -22,6 +22,7 @@ public:
 
 	~Point() = default;
 
+	// Ostream operator used to print our attributes.
 	friend ostream& operator<<(ostream&, const Point&);
 
 	const Real x;
@@ -53,9 +54,9 @@ inline Surface slope()
 }
 
 // Surface that is represented by steps.
-inline Surface steps(const Real& s = 1.0)
+inline Surface steps(Real s = 1.0)
 {
-	return [&](const Point& p) -> Real
+	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
@@ -66,9 +67,9 @@ inline Surface steps(const Real& s = 1.0)
 }
 
 // Surface that represents a chessboard.
-inline Surface checker(const Real& s = 1.0)
+inline Surface checker(Real s = 1.0)
 {
-	return [&](const Point& p) -> Real
+	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
 		int x_quotient = p.x / s;
@@ -102,9 +103,9 @@ inline Surface cos_wave()
 }
 
 // Surface that represents rings.
-inline Surface rings(const Real& s = 1.0)
+inline Surface rings(Real s = 1.0)
 {
-	return [&](const Point& p) -> Real 
+	return [=](const Point& p) -> Real 
 	{
 		if (s <= 0.0) { return 0.0; }
 		Real dist = std::sqrt(p.x * p.x + p.y * p.y);
@@ -126,9 +127,9 @@ inline Surface ellipse(Real a = 1.0, Real b = 1.0)
 }
 
 // Surface that represents rectangle.
-inline Surface rectangle(const Real& a = 1.0, const Real& b = 1.0)
+inline Surface rectangle(Real a = 1.0, Real b = 1.0)
 {
-	return [&](const Point& p) -> Real
+	return [=](const Point& p) -> Real
 	{
 		if (a <= 0.0 || b <= 0.0) { return 0.0; }
 		return (abs(p.x) <= a && abs(p.y) <= b) ? 1.0 : 0.0;
@@ -136,9 +137,9 @@ inline Surface rectangle(const Real& a = 1.0, const Real& b = 1.0)
 }
 
 // Surface that represents stripes.
-inline Surface stripes(const Real& s = 1.0)
+inline Surface stripes(Real s = 1.0)
 {
-	return [&](const Point& p) -> Real
+	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
@@ -150,7 +151,7 @@ inline Surface stripes(const Real& s = 1.0)
 // Rotate the domain of the given function by the gven angle. 
 inline Surface rotate(Surface&& f, Real deg)
 {
-	return [deg, &f](const Point& p) -> Real
+	return [deg, f = std::move(f)](const Point& p) -> Real
 	{
 		Real r = Real(std::sqrt(p.x * p.x + p.y * p.y));
 		Real cosAlpha = p.x / r;
@@ -167,7 +168,7 @@ inline Surface rotate(Surface&& f, Real deg)
 // Moves the domain of the given surface by the given vector (Point).
 inline Surface translate(Surface&& f, const Point& pa)
 {
-	return [&pa, &f](const Point& pb) -> Real
+	return [&pa, f = std::move(f)](const Point& pb) -> Real
 	{
 		Point p_new(pb.x - pa.x, pb.y - pa.y);
 		return f(p_new);
@@ -177,7 +178,7 @@ inline Surface translate(Surface&& f, const Point& pa)
 // Scales the domain of the given surface by the given vector (Point).
 inline Surface scale(Surface&& f, const Point& pa)
 {
-	return [&pa, &f](const Point& pb) -> Real 
+	return [&pa, f = std::move(f)](const Point& pb) -> Real
 	{
 		
 		Point p_new(pb.x / pa.x, pb.y / pa.y);
@@ -188,7 +189,7 @@ inline Surface scale(Surface&& f, const Point& pa)
 // Inverts the given surface (swaps x's with y's).
 inline Surface invert(Surface&& f)
 {
-	return [&f](const Point& p) -> Real 
+	return [f = std::move(f)](const Point& p) -> Real
 	{
 		Point p_new(p.y, p.x);
 		return f(p_new); 
@@ -198,7 +199,7 @@ inline Surface invert(Surface&& f)
 // Flips the domain of the Surface (flips x to -x).
 inline Surface flip(Surface&& f)
 {
-	return [&f](const Point& p) -> Real 
+	return [f = std::move(f)](const Point& p) -> Real
 	{
 		Point p_new(-p.x, p.y);
 		return f(p_new);
@@ -209,13 +210,13 @@ inline Surface flip(Surface&& f)
 // Multiplies the given surface by the scalar c.
 inline Surface mul(Surface&& f, Real c)
 {
-	return [c, &f](const Point& p) -> Real { return f(p) * c; };
+	return [c, f = std::move(f)](const Point& p) -> Real { return f(p) * c; };
 }
 
 // Adds a scalar c to the given surface.
 inline Surface add(Surface&& f, Real c)
 {
-	return [c, &f](const Point& p) -> Real { return f(p) + c; };
+	return [c, f = std::move(f)](const Point& p) -> Real { return f(p) + c; };
 }
 
 template <class F, class T, class... Args>
@@ -229,7 +230,7 @@ auto evaluate(F&& f, T&& t, Args&&... args) -> decltype(auto)
 
 inline auto compose() -> decltype(auto)
 {
-	return[&](Real r)->Real
+	return[](Real r)->Real
 	{
 		return r;
 	};
