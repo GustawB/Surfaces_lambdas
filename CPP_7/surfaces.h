@@ -222,7 +222,7 @@ auto evaluate(F&& f, T&& t, Args&&... args) -> decltype(auto)
 	};
 }
 
-auto compose() -> decltype(auto)
+inline auto compose() -> decltype(auto)
 {
 	return[&](Real r)->Real
 	{
@@ -242,9 +242,9 @@ auto compose(F&& f) -> decltype(auto)
 template <class F, class... T>
 auto compose(F&& f, T&&... t) -> decltype(auto)
 {
-	return[&](Real r)->Real
+	return[&]<typename K>(const K& k)->Real
 	{
-		return compose(t...)(f(r));
+		return compose(t...)(f(k));
 	};
 }
 
