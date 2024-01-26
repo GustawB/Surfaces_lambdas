@@ -59,10 +59,8 @@ inline Surface steps(Real s = 1.0)
 	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int quotient = p.x / s;
-		if (p.x < 0 && quotient * s != p.x) { --quotient; }
-		Real result = quotient * 1.0;
-		return result;
+		int quotient = (p.x < 0 && quotient * s != p.x) ? int(p.x / s) - 1 : int(p.x / s);
+		return quotient * 1.0; // casting to Real.
 	};
 }
 
@@ -72,10 +70,8 @@ inline Surface checker(Real s = 1.0)
 	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int x_quotient = p.x / s;
-		int y_quotient = p.y / s;
-		if (p.x < 0 && x_quotient * s != p.x) { --x_quotient; }
-		if (p.y < 0 && y_quotient * s != p.y) { --y_quotient; }
+		int x_quotient = (p.x < 0 && x_quotient * s != p.x) ? int(p.x / s) - 1 : int(p.x / s);
+		int y_quotient = (p.y < 0 && y_quotient * s != p.y) ? int(p.y / s) - 1 : int(p.y / s);
 		return (x_quotient % 2 == 0) ?
 			((y_quotient % 2 == 0) ?
 				1.0 : 0.0) :
@@ -220,7 +216,7 @@ inline Surface add(Surface&& f, Real c)
 }
 
 template <class F, class T, class... Args>
-auto evaluate(F&& f, T&& t, Args&&... args) -> decltype(auto)
+auto evaluate(const F& f, const T& t, const Args&... args) -> decltype(auto)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -237,7 +233,7 @@ inline auto compose() -> decltype(auto)
 }
 
 template <class F>
-auto compose(F&& f) -> decltype(auto)
+auto compose(const F& f) -> decltype(auto)
 {
 	return[&](Real r)->Real
 	{
@@ -246,7 +242,7 @@ auto compose(F&& f) -> decltype(auto)
 }
 
 template <class F, class... T>
-auto compose(F&& f, T&&... t) -> decltype(auto)
+auto compose(const F& f, const T&... t) -> decltype(auto)
 {
 	return[&]<typename K>(const K& k)->Real
 	{
