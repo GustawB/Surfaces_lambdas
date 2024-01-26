@@ -57,8 +57,9 @@ inline Surface steps(const Real& s = 1.0)
 	return [&](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int quotient = abs(p.x) / s;
-		quotient = (p.x < 0.0) ? -quotient : quotient;
+		int quotient = p.x / s;
+		//quotient = (p.x < 0.0) ? -quotient : quotient;
+		if (p.x < 0) { --quotient; }
 		Real result = quotient * 1.0;
 		return result;
 	};
