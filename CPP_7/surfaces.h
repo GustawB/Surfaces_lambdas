@@ -60,6 +60,7 @@ inline Surface steps(Real s = 1.0)
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = (p.x < 0 && quotient * s != p.x) ? int(p.x / s) - 1 : int(p.x / s);
+		quotient = (p.x < 0 && quotient * s != p.x) ? quotient - 1 : quotient;
 		return quotient * 1.0; // casting to Real.
 	};
 }
@@ -70,8 +71,10 @@ inline Surface checker(Real s = 1.0)
 	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int x_quotient = (p.x < 0 && x_quotient * s != p.x) ? int(p.x / s) - 1 : int(p.x / s);
-		int y_quotient = (p.y < 0 && y_quotient * s != p.y) ? int(p.y / s) - 1 : int(p.y / s);
+		int x_quotient = p.x / s;
+		int y_quotient = p.y / s;
+		x_quotient =  (p.x < 0 && x_quotient * s != p.x) ? x_quotient - 1 : x_quotient
+		y_quotient =  (p.y < 0 && y_quotient * s != p.y) ? y_quotient - 1 : y_quotient
 		return (x_quotient % 2 == 0) ?
 			((y_quotient % 2 == 0) ?
 				1.0 : 0.0) :
