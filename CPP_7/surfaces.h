@@ -14,7 +14,7 @@ using std::abs;
 using std::sin;
 using std::cos;
 using std::sqrt;
-using PI = std::numbers::pi;
+using std::numbers::pi;
 
 class Point
 {
@@ -147,8 +147,8 @@ inline Surface stripes(Real s = 1.0)
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
-		quotient = (p.x >= 0 && quotient * s != p.x) ? 
-			quotient - 1 : quotient
+		quotient = (p.x >= 0 && quotient * s != p.x) ?
+			quotient - 1 : quotient;
 		return (quotient % 2 == 0) ? 0.0 : 1.0;
 	};
 }
@@ -161,8 +161,8 @@ inline Surface rotate(const Surface& f, Real deg)
 		Real r = Real(sqrt(p.x * p.x + p.y * p.y));
 		Real cosAlpha = p.x / r;
 		Real sinAlpha = p.y / r;
-		Real cosBeta = cos(-deg * PI / 180.0);
-		Real sinBeta = sin(-deg * PI / 180.0);
+		Real cosBeta = cos(-deg * pi / 180.0);
+		Real sinBeta = sin(-deg * pi / 180.0);
 		Real sinS = sinAlpha * cosBeta + sinBeta * cosAlpha;
 		Real cosS = cosAlpha * cosBeta - sinAlpha * sinBeta;
 		Point p_new(r * cosS, r * sinS);
