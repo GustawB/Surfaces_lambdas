@@ -39,20 +39,20 @@ inline ostream& operator<<(ostream& os, const Point& p)
 using Surface = function<Real(const Point&)>;
 
 // Surface described as 0.0;
-Surface plain()
+inline Surface plain()
 { 
 	return [](const Point&) -> Real { return 0.0; };
 }
 
 // Surface described as x, where x is the coordinate of the
 // Point passed as the lambda param.
-Surface slope()
+inline Surface slope()
 {
 	return [](const Point& p) -> Real { return p.x; };
 }
 
 // Surface that is represented by steps.
-Surface steps(const Real& s = 1.0)
+inline Surface steps(const Real& s = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -65,7 +65,7 @@ Surface steps(const Real& s = 1.0)
 }
 
 // Surface that represents a chessboard.
-Surface checker(const Real& s = 1.0)
+inline Surface checker(const Real& s = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -81,25 +81,25 @@ Surface checker(const Real& s = 1.0)
 }
 
 // Surface that represents x*x.
-Surface sqr()
+inline Surface sqr()
 {
 	return [](const Point& p) -> Real { return p.x * p.x; };
 }
 
 // Surface that represents sin(x).
-Surface sin_wave()
+inline Surface sin_wave()
 {
 	return [](const Point& p) -> Real { return sin(p.x); };
 }
 
 // Surface that represents cos(x).
-Surface cos_wave()
+inline Surface cos_wave()
 {
 	return [](const Point& p) -> Real { return cos(p.x); };
 }
 
 // Surface that represents rings.
-Surface rings(const Real& s = 1.0)
+inline Surface rings(const Real& s = 1.0)
 {
 	return [&](const Point& p) -> Real 
 	{
@@ -116,7 +116,7 @@ Surface rings(const Real& s = 1.0)
 }
 
 // Surface that represents ellipse.
-Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
+inline Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -128,7 +128,7 @@ Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
 }
 
 // Surface that represents rectangle.
-Surface rectangle(const Real& a = 1.0, const Real& b = 1.0)
+inline Surface rectangle(const Real& a = 1.0, const Real& b = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -138,7 +138,7 @@ Surface rectangle(const Real& a = 1.0, const Real& b = 1.0)
 }
 
 // Surface that represents stripes.
-Surface stripes(const Real& s = 1.0)
+inline Surface stripes(const Real& s = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
@@ -150,7 +150,7 @@ Surface stripes(const Real& s = 1.0)
 }
 
 // Rotate the domain of the given function by the gven angle. 
-Surface rotate(Surface&& f, Real deg)
+inline Surface rotate(Surface&& f, Real deg)
 {
 	return [deg, &f](const Point& p) -> Real
 	{
@@ -161,7 +161,7 @@ Surface rotate(Surface&& f, Real deg)
 }
 
 // Moves the domain of the given surface by the given vector (Point).
-Surface translate(Surface&& f, const Point& pa)
+inline Surface translate(Surface&& f, const Point& pa)
 {
 	return [&pa, &f](const Point& pb) -> Real
 	{
@@ -171,7 +171,7 @@ Surface translate(Surface&& f, const Point& pa)
 }
 
 // Scales the domain of the given surface by the given vector (Point).
-Surface scale(Surface&& f, const Point& pa)
+inline Surface scale(Surface&& f, const Point& pa)
 {
 	return [&pa, &f](const Point& pb) -> Real 
 	{
@@ -181,7 +181,7 @@ Surface scale(Surface&& f, const Point& pa)
 }
 
 // Inverts the given surface (swaps x's with y's).
-Surface invert(Surface&& f)
+inline Surface invert(Surface&& f)
 {
 	return [&f](const Point& p) -> Real 
 	{
@@ -191,7 +191,7 @@ Surface invert(Surface&& f)
 }
 
 // Flips the domain of the Surface (flips x to -x).
-Surface flip(Surface&& f)
+inline Surface flip(Surface&& f)
 {
 	return [&f](const Point& p) -> Real 
 	{
@@ -202,13 +202,13 @@ Surface flip(Surface&& f)
 
 
 // Multiplies the given surface by the scalar c.
-Surface mul(Surface&& f, Real c)
+inline Surface mul(Surface&& f, Real c)
 {
 	return [c, &f](const Point& p) -> Real { return f(p) * c; };
 }
 
 // Adds a scalar c to the given surface.
-Surface add(Surface&& f, Real c)
+inline Surface add(Surface&& f, Real c)
 {
 	return [c, &f](const Point& p) -> Real { return f(p) + c; };
 }
