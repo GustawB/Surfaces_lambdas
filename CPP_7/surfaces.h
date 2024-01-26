@@ -73,8 +73,8 @@ inline Surface checker(const Real& s = 1.0)
 		if (s <= 0.0) { return 0.0; }
 		int x_quotient = p.x / s;
 		int y_quotient = p.y / s;
-		if (p.x < 0) { --x_quotient; }
-		if (p.y < 0) { --y_quotient; }
+		if (p.x < 0 && x_quotient * s != p.x) { --x_quotient; }
+		if (p.y < 0 && y_quotient * s != p.y) { --y_quotient; }
 		return (x_quotient % 2 == 0) ?
 			((y_quotient % 2 == 0) ?
 				1.0 : 0.0) :
