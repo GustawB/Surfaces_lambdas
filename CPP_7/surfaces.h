@@ -123,9 +123,11 @@ inline Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
 {
 	return [&](const Point& p) -> Real
 	{
+		
 		if (a <= 0.0 || b <= 0.0) { return 0.0; }
 		Real first = p.x * p.x / a * a;
 		Real second = p.y * p.y / b * b;
+		//std::cout << first << " " << second << '\n';
 		return (first + second <= 1.0) ? 1.0 : 0.0;
 	};
 }
@@ -146,9 +148,9 @@ inline Surface stripes(const Real& s = 1.0)
 	return [&](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int quotient = abs(p.x) / s;
-		quotient = (quotient * s == abs(p.x)) ? quotient - 1 : quotient;
-		return (quotient % 2 == 0) ? 1.0 : 0.0;
+		int quotient = p.x / s;
+		if (p.x >= 0 && quotient * s != p.x) { ++quotient; }
+		return (quotient % 2 == 0) ? 0.0 : 1.0;
 	};
 }
 
@@ -174,7 +176,7 @@ inline Surface translate(Surface&& f, const Point& pa)
 {
 	return [&pa, &f](const Point& pb) -> Real
 	{
-		Point p_new(pb.x + pa.x, pb.y + pa.y);
+		Point p_new(pb.x - pa.x, pb.y - pa.y);
 		return f(p_new);
 	};
 }
