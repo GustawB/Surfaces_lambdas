@@ -5,6 +5,7 @@
 #include <cmath>
 #include <functional>
 #include "real.h"
+#include <numbers> // std::numbers
 
 using std::ostream;
 using std::invoke;
@@ -58,7 +59,6 @@ inline Surface steps(const Real& s = 1.0)
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
-		//quotient = (p.x < 0.0) ? -quotient : quotient;
 		if (p.x < 0) { --quotient; }
 		Real result = quotient * 1.0;
 		return result;
@@ -71,8 +71,10 @@ inline Surface checker(const Real& s = 1.0)
 	return [&](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int x_quotient = abs(p.x) / s;
-		int y_quotient = abs(p.y) / s;
+		int x_quotient = p.x / s;
+		int y_quotient = p.y / s;
+		if (p.x < 0) { --x_quotient; }
+		if (p.y < 0) { --y_quotient; }
 		return (x_quotient % 2 == 0) ?
 			((y_quotient % 2 == 0) ?
 				1.0 : 0.0) :
@@ -155,8 +157,14 @@ inline Surface rotate(Surface&& f, Real deg)
 {
 	return [deg, &f](const Point& p) -> Real
 	{
-		Point p_new(p.x * cos(deg) - p.y * sin(deg),
-			p.x * sin(deg) + p.y * cos(deg));
+		Real r = Real(std::sqrt(p.x * p.x + p.y * p.y));
+		Real cosAlpha = p.x / r;
+		Real sinAlpha = p.y / r;
+		Real cosBeta = cos(-deg * std::numbers::pi / 180.0);
+		Real sinBeta = sin(-deg * std::numbers::pi / 180.0);
+		Real sinS = sinAlpha * cosBeta + sinBeta * cosAlpha;
+		Real cosS = cosAlpha * cosBeta - sinAlpha * sinBeta;
+		Point p_new(r * cosS, r * sinS);
 		return f(p_new);
 	};
 }
@@ -176,7 +184,8 @@ inline Surface scale(Surface&& f, const Point& pa)
 {
 	return [&pa, &f](const Point& pb) -> Real 
 	{
-		Point p_new(pb.x * pa.x, pb.y * pa.y);
+		
+		Point p_new(pb.x / pa.x, pb.y / pa.y);
 		return f(p_new);
 	};
 }
