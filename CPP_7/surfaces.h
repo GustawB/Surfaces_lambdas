@@ -114,14 +114,13 @@ inline Surface rings(const Real& s = 1.0)
 }
 
 // Surface that represents ellipse.
-inline Surface ellipse(const Real& a = 1.0, const Real& b = 1.0)
+inline Surface ellipse(Real a = 1.0, Real b = 1.0)
 {
-	return [&](const Point& p) -> Real
+	return [=](const Point& p) -> Real
 	{
-		
 		if (a <= 0.0 || b <= 0.0) { return 0.0; }
-		Real first = p.x * p.x / a * a;
-		Real second = p.y * p.y / b * b;
+		Real first = (p.x * p.x) / (a * a);
+		Real second = (p.y * p.y) / (b * b);
 		return (first + second <= 1.0) ? 1.0 : 0.0;
 	};
 }
