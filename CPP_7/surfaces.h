@@ -4,8 +4,8 @@
 #include <iostream>
 #include <cmath>
 #include <functional>
+#include <numbers> // std::numbers::pi
 #include "real.h"
-#include <numbers> // std::numbers
 
 using std::ostream;
 using std::invoke;
@@ -13,6 +13,8 @@ using std::function;
 using std::abs;
 using std::sin;
 using std::cos;
+using std::sqrt;
+using PI = std::numbers::pi;
 
 class Point
 {
@@ -59,8 +61,9 @@ inline Surface steps(Real s = 1.0)
 	return [=](const Point& p) -> Real
 	{
 		if (s <= 0.0) { return 0.0; }
-		int quotient = (p.x < 0 && quotient * s != p.x) ? int(p.x / s) - 1 : int(p.x / s);
-		quotient = (p.x < 0 && quotient * s != p.x) ? quotient - 1 : quotient;
+		int quotient = (p.x / s);
+		quotient = (p.x < 0 && quotient * s != p.x) ? 
+			quotient - 1 : quotient;
 		return quotient * 1.0; // casting to Real.
 	};
 }
@@ -73,8 +76,10 @@ inline Surface checker(Real s = 1.0)
 		if (s <= 0.0) { return 0.0; }
 		int x_quotient = p.x / s;
 		int y_quotient = p.y / s;
-		x_quotient =  (p.x < 0 && x_quotient * s != p.x) ? x_quotient - 1 : x_quotient
-		y_quotient =  (p.y < 0 && y_quotient * s != p.y) ? y_quotient - 1 : y_quotient
+		x_quotient = (p.x < 0 && x_quotient * s != p.x) ? 
+			x_quotient - 1 : x_quotient;
+		y_quotient = (p.y < 0 && y_quotient * s != p.y) ? 
+			y_quotient - 1 : y_quotient;
 		return (x_quotient % 2 == 0) ?
 			((y_quotient % 2 == 0) ?
 				1.0 : 0.0) :
@@ -107,7 +112,7 @@ inline Surface rings(Real s = 1.0)
 	return [=](const Point& p) -> Real 
 	{
 		if (s <= 0.0) { return 0.0; }
-		Real dist = std::sqrt(p.x * p.x + p.y * p.y);
+		Real dist = sqrt(p.x * p.x + p.y * p.y);
 		int quotient = dist / s;
 		return (quotient % 2 == 0) ? 1.0 : 0.0;
 	};
@@ -142,21 +147,22 @@ inline Surface stripes(Real s = 1.0)
 	{
 		if (s <= 0.0) { return 0.0; }
 		int quotient = p.x / s;
-		if (p.x >= 0 && quotient * s != p.x) { ++quotient; }
+		quotient = (p.x >= 0 && quotient * s != p.x) ? 
+			quotient - 1 : quotient
 		return (quotient % 2 == 0) ? 0.0 : 1.0;
 	};
 }
 
 // Rotate the domain of the given function by the gven angle. 
-inline Surface rotate(Surface&& f, Real deg)
+inline Surface rotate(const Surface& f, Real deg)
 {
-	return [deg, f = std::move(f)](const Point& p) -> Real
+	return [deg, &f](const Point& p) -> Real
 	{
-		Real r = Real(std::sqrt(p.x * p.x + p.y * p.y));
+		Real r = Real(sqrt(p.x * p.x + p.y * p.y));
 		Real cosAlpha = p.x / r;
 		Real sinAlpha = p.y / r;
-		Real cosBeta = cos(-deg * std::numbers::pi / 180.0);
-		Real sinBeta = sin(-deg * std::numbers::pi / 180.0);
+		Real cosBeta = cos(-deg * PI / 180.0);
+		Real sinBeta = sin(-deg * PI / 180.0);
 		Real sinS = sinAlpha * cosBeta + sinBeta * cosAlpha;
 		Real cosS = cosAlpha * cosBeta - sinAlpha * sinBeta;
 		Point p_new(r * cosS, r * sinS);
@@ -165,9 +171,9 @@ inline Surface rotate(Surface&& f, Real deg)
 }
 
 // Moves the domain of the given surface by the given vector (Point).
-inline Surface translate(Surface&& f, const Point& pa)
+inline Surface translate(const Surface& f, const Point& pa)
 {
-	return [&pa, f = std::move(f)](const Point& pb) -> Real
+	return [&pa, &f](const Point& pb) -> Real
 	{
 		Point p_new(pb.x - pa.x, pb.y - pa.y);
 		return f(p_new);
@@ -175,20 +181,19 @@ inline Surface translate(Surface&& f, const Point& pa)
 }
 
 // Scales the domain of the given surface by the given vector (Point).
-inline Surface scale(Surface&& f, const Point& pa)
+inline Surface scale(const Surface& f, const Point& pa)
 {
-	return [&pa, f = std::move(f)](const Point& pb) -> Real
+	return [&pa, &f](const Point& pb) -> Real
 	{
-		
 		Point p_new(pb.x / pa.x, pb.y / pa.y);
 		return f(p_new);
 	};
 }
 
 // Inverts the given surface (swaps x's with y's).
-inline Surface invert(Surface&& f)
+inline Surface invert(const Surface& f)
 {
-	return [f = std::move(f)](const Point& p) -> Real
+	return [&f](const Point& p) -> Real
 	{
 		Point p_new(p.y, p.x);
 		return f(p_new); 
@@ -196,9 +201,9 @@ inline Surface invert(Surface&& f)
 }
 
 // Flips the domain of the Surface (flips x to -x).
-inline Surface flip(Surface&& f)
+inline Surface flip(const Surface& f)
 {
-	return [f = std::move(f)](const Point& p) -> Real
+	return [&f](const Point& p) -> Real
 	{
 		Point p_new(-p.x, p.y);
 		return f(p_new);
@@ -207,17 +212,24 @@ inline Surface flip(Surface&& f)
 
 
 // Multiplies the given surface by the scalar c.
-inline Surface mul(Surface&& f, Real c)
+inline Surface mul(const Surface& f, Real c)
 {
-	return [c, f = std::move(f)](const Point& p) -> Real { return f(p) * c; };
+	return [c, &f](const Point& p) -> Real 
+	{ 
+		return f(p) * c;
+	};
 }
 
 // Adds a scalar c to the given surface.
-inline Surface add(Surface&& f, Real c)
+inline Surface add(const Surface& f, Real c)
 {
-	return [c, f = std::move(f)](const Point& p) -> Real { return f(p) + c; };
+	return [c, &f](const Point& p) -> Real 
+	{
+		return f(p) + c;
+	};
 }
 
+// Calls f with results of t and args function calls.
 template <class F, class T, class... Args>
 auto evaluate(const F& f, const T& t, const Args&... args) -> decltype(auto)
 {
@@ -227,6 +239,8 @@ auto evaluate(const F& f, const T& t, const Args&... args) -> decltype(auto)
 	};
 }
 
+// Non-templated overload of the compose function used
+// when we received no parameter.
 inline auto compose() -> decltype(auto)
 {
 	return[](Real r)->Real
@@ -235,6 +249,7 @@ inline auto compose() -> decltype(auto)
 	};
 }
 
+// Compose function specialization for one parameter.
 template <class F>
 auto compose(const F& f) -> decltype(auto)
 {
@@ -244,6 +259,7 @@ auto compose(const F& f) -> decltype(auto)
 	};
 }
 
+// Function that generates function composition t_n(t_n-1...(f_2(f_1))...).
 template <class F, class... T>
 auto compose(const F& f, const T&... t) -> decltype(auto)
 {
